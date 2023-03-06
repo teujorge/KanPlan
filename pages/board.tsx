@@ -1,37 +1,45 @@
 /** @jsxImportSource @emotion/react */
 import Head from "next/head";
 import { css } from "@emotion/react";
-import BoardColumn from "../content/components/BoardColumn";
-import { CardInfo } from "../content/components/BoardCard";
+import BoardColumn, { Column } from "../content/components/board/BoardColumn";
 import { Dispatch, SetStateAction, createContext, useState } from "react";
 
 type BoardContextType = {
-  cards: CardInfo[][];
-  setCards: Dispatch<SetStateAction<CardInfo[][]>>;
+  columns: Column[];
+  setColumns: Dispatch<SetStateAction<Column[]>>;
 };
 
 export const BoardContext = createContext<BoardContextType>({
-  cards: [],
-  setCards: () => {},
+  columns: [],
+  setColumns: () => {},
 });
 
 export default function Board() {
-  const [cards, setCards] = useState<CardInfo[][]>([
-    [
-      { id: "1", text: "hi" },
-      { id: "2", text: "byebyebyebyebye" },
-    ],
-    [],
-    [],
-    [],
-    [],
+  const [columns, setColumns] = useState<Column[]>([
+    {
+      title: "col1",
+      cards: [
+        { id: "1", text: "hi" },
+        { id: "2", text: "byebyebyebyebye" },
+        { id: "3", text: "asdfasdf" },
+      ],
+    },
+    {
+      title: "col2",
+      cards: [{ id: "4", text: "1111111" }],
+    },
   ]);
+
+  function createNewColumn() {
+    const newColumn: Column = { title: "untitled", cards: [] };
+    setColumns([...columns, newColumn]);
+  }
 
   return (
     <BoardContext.Provider
       value={{
-        cards: cards,
-        setCards: setCards,
+        columns: columns,
+        setColumns: setColumns,
       }}
     >
       <div
@@ -42,9 +50,6 @@ export default function Board() {
 
           margin: 10px;
           padding: 10px;
-
-          width: 100vw;
-          height: 100vh;
         `}
       >
         <Head>
@@ -65,9 +70,29 @@ export default function Board() {
               justify-content: center;
             `}
           >
-            {cards.map((col, index) => (
-              <BoardColumn column={index} />
+            {columns.map((col, index) => (
+              <BoardColumn
+                key={`board-column-${index}-${col.title}`}
+                index={index}
+              />
             ))}
+            <div
+              css={css`
+                cursor: pointer;
+
+                text-decoration: underline;
+                text-decoration-color: transparent;
+
+                transition: text-decoration-color 0.1s ease;
+
+                :hover {
+                  text-decoration-color: var(--foreground-color);
+                }
+              `}
+              onClick={createNewColumn}
+            >
+              + new column
+            </div>
           </div>
         </main>
       </div>
