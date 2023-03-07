@@ -36,8 +36,6 @@ export function findCardsInColumns({
     }
   }
 
-  console.log(card1Loc, card2Loc);
-
   return { card1Loc, card2Loc };
 }
 
@@ -59,9 +57,6 @@ export function columnsAfterMove({
 
   // move it to specified index
   tempCards[finalLoc.col!].cards.splice(finalLoc.row, 0, removedCard);
-
-  console.log(columns);
-  console.log(tempCards);
 
   return tempCards;
 }
