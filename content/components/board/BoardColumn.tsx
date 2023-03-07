@@ -27,6 +27,8 @@ const BoardColumn = ({ index }: { index: number }) => {
   }
 
   function handleDropCard(event: DragEvent<HTMLDivElement>) {
+    console.log("column drop");
+
     // obtain dropped card info
     const cardId = event.dataTransfer.getData("id");
 
@@ -36,13 +38,11 @@ const BoardColumn = ({ index }: { index: number }) => {
       card1Id: cardId,
     });
 
-    console.log(draggedCardLoc);
-
     // update dropped card list based on where it was dropped
     let newColumns = columnsAfterMove({
       columns: columns,
       initialLoc: draggedCardLoc!,
-      finalLoc: { col: index },
+      finalLoc: { col: index, row: columns[index].cards.length - 1 },
     });
     setColumns([...newColumns]);
   }

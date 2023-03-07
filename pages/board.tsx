@@ -2,16 +2,26 @@
 import Head from "next/head";
 import { css } from "@emotion/react";
 import BoardColumn, { Column } from "../content/components/board/BoardColumn";
-import { Dispatch, SetStateAction, createContext, useState } from "react";
+import {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  createContext,
+  useState,
+} from "react";
 
 type BoardContextType = {
   columns: Column[];
   setColumns: Dispatch<SetStateAction<Column[]>>;
+  draggingCard: RefObject<HTMLDivElement> | null;
+  setDraggingCard: Dispatch<SetStateAction<RefObject<HTMLDivElement> | null>>;
 };
 
 export const BoardContext = createContext<BoardContextType>({
   columns: [],
   setColumns: () => {},
+  draggingCard: null,
+  setDraggingCard: () => {},
 });
 
 export default function Board() {
@@ -20,7 +30,7 @@ export default function Board() {
       title: "col1",
       cards: [
         { id: "1", text: "hi" },
-        { id: "2", text: "byebyebyebyebye" },
+        { id: "2", text: "byebyebyebyebye byebyebyebyebye byebyebyebyebye" },
         { id: "3", text: "asdfasdf" },
       ],
     },
@@ -29,6 +39,8 @@ export default function Board() {
       cards: [{ id: "4", text: "1111111" }],
     },
   ]);
+  const [draggingCard, setDraggingCard] =
+    useState<RefObject<HTMLDivElement> | null>(null);
 
   function createNewColumn() {
     const newColumn: Column = { title: "untitled", cards: [] };
@@ -40,6 +52,8 @@ export default function Board() {
       value={{
         columns: columns,
         setColumns: setColumns,
+        draggingCard: draggingCard,
+        setDraggingCard: setDraggingCard,
       }}
     >
       <div
