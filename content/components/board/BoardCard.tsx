@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { DragEvent, useContext, useState } from "react";
+import { DragEvent, useContext, useRef, useState } from "react";
 import { BoardContext } from "../../../pages/board";
 import {
   findCardsInColumns,
@@ -13,19 +13,13 @@ export type CardInfo = {
 };
 
 const BoardCard = ({ info }: { info: CardInfo }) => {
-  const { columns, setColumns } = useContext(BoardContext);
+  const { columns, setColumns, draggingCard, setDraggingCard } =
+    useContext(BoardContext);
+
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-
-  function handleDragStart(event: DragEvent<HTMLDivElement>) {
-    event.dataTransfer.setData("id", info.id);
-    setIsDragging(true);
-  }
-
-  function handleDragEnd(event: DragEvent<HTMLDivElement>) {
-    setIsDragging(false);
-  }
 
   function handleCardDragOverEnter(event: DragEvent<HTMLDivElement>) {
     if (!isDragging) setIsDragOver(true);
@@ -36,7 +30,21 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     setIsDragOver(false);
   }
 
-  function handleDropCard(event: DragEvent<HTMLDivElement>) {
+  function handleStartDrag(event: DragEvent<HTMLDivElement>) {
+    event.dataTransfer.setData("id", info.id);
+    setDraggingCard(cardRef);
+    setIsDragging(true);
+  }
+
+  function handleEndDrag(event: DragEvent<HTMLDivElement>) {
+    setDraggingCard(null);
+    setIsDragging(false);
+  }
+
+  function handleDropDrag(event: DragEvent<HTMLDivElement>) {
+    setDraggingCard(null);
+    console.log("card drop");
+
     // ignore parent onDrop
     event.stopPropagation();
 
@@ -44,15 +52,12 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     const cardId = event.dataTransfer.getData("id");
 
     // find cards in arrays
-
     const { card1Loc: draggedCardLoc, card2Loc: thisCardLoc } =
       findCardsInColumns({
         columns: columns,
         card1Id: cardId,
         card2Id: info.id,
       });
-
-    console.log(draggedCardLoc, thisCardLoc);
 
     // update dropped card list based on where it was dropped
     let newColumns = columnsAfterMove({
@@ -75,12 +80,13 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
 
         transition: opacity 0.2s ease;
       `}
+      ref={cardRef}
       draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragStart={handleStartDrag}
+      onDragEnd={handleEndDrag}
       onDragEnter={handleCardDragOverEnter}
       onDragLeave={handleCardDragOverLeave}
-      onDrop={handleDropCard}
+      onDrop={handleDropDrag}
     >
       <div
         css={css`
@@ -88,12 +94,8 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
           padding: 10px;
           border-radius: var(--border-radius);
           background-color: green;
-          transform: translate(
-              ${isDragOver ? -20 : 0}px,
-              ${isDragOver ? 20 : 0}px
-            )
-            rotateZ(${isDragOver ? 2 : 0}deg);
-          transition: transform 0.2s ease;
+          margin-top: ${isDragOver ? draggingCard?.current?.clientHeight : 0}px;
+          transition: margin 0.2s ease;
         `}
       >
         {info.text}
