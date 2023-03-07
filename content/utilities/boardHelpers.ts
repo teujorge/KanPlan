@@ -1,8 +1,8 @@
 import { Column } from "../components/board/BoardColumn";
 
 type Location = {
-  row?: number;
-  col?: number;
+  row: number;
+  col: number;
 };
 
 export function findCardsInColumns({
@@ -36,6 +36,8 @@ export function findCardsInColumns({
     }
   }
 
+  console.log(card1Loc, card2Loc);
+
   return { card1Loc, card2Loc };
 }
 
@@ -48,21 +50,18 @@ export function columnsAfterMove({
   initialLoc: Location;
   finalLoc: Location;
 }) {
-  let tempCards = columns;
+  let tempCards = [...columns];
 
-  const removedCard = tempCards[initialLoc.col!].cards.splice(
-    initialLoc.row!,
+  const removedCard = tempCards[initialLoc.col].cards.splice(
+    initialLoc.row,
     1
   )[0];
 
   // move it to specified index
-  if (finalLoc.col) {
-    tempCards[finalLoc.col].cards.splice(finalLoc.row!, 0, removedCard);
-  }
-  // move card to end of list
-  else {
-    tempCards[finalLoc.col!].cards.push(removedCard);
-  }
+  tempCards[finalLoc.col!].cards.splice(finalLoc.row, 0, removedCard);
+
+  console.log(columns);
+  console.log(tempCards);
 
   return tempCards;
 }
