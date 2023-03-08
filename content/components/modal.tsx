@@ -30,7 +30,6 @@ const Modal = ({
 
   function closeModal() {
     onClose();
-    console.log("closeModal()");
   }
 
   // if modal parent is not window/body position will be bad
