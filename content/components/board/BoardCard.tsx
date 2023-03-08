@@ -6,10 +6,14 @@ import {
   findCardsInColumns,
   columnsAfterMove,
 } from "../../utilities/boardHelpers";
+import Modal from "../modal";
 
 export type CardInfo = {
   id: string;
-  text: string;
+  title: string;
+  description?: string;
+  colors?: string[];
+  date?: string;
 };
 
 const BoardCard = ({ info }: { info: CardInfo }) => {
@@ -18,25 +22,38 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
 
   const cardRef = useRef<HTMLDivElement>(null);
 
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
+  let cardEdits: CardInfo = {
+    id: info.id,
+    title: info.title,
+    description: info.description,
+    colors: info.colors,
+    date: info.date,
+  };
+
   function handleCardDragOverEnter(event: DragEvent<HTMLDivElement>) {
+    event.stopPropagation();
     if (!isDragging) setIsDragOver(true);
     else setIsDragOver(false);
   }
 
   function handleCardDragOverLeave(event: DragEvent<HTMLDivElement>) {
+    event.stopPropagation();
     setIsDragOver(false);
   }
 
   function handleStartDrag(event: DragEvent<HTMLDivElement>) {
+    console.log("drag start");
     event.dataTransfer.setData("id", info.id);
     setDraggingCard(cardRef);
     setIsDragging(true);
   }
 
   function handleEndDrag(event: DragEvent<HTMLDivElement>) {
+    console.log("drag end");
     setDraggingCard(null);
     setIsDragging(false);
   }
@@ -51,13 +68,16 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     // obtain dropped card info
     const cardId = event.dataTransfer.getData("id");
 
+    // same card
+    if (cardId === info.id) return;
+
     // find cards in arrays
-    const { card1Loc: draggedCardLoc, card2Loc: thisCardLoc } =
-      findCardsInColumns({
-        columns: columns,
-        card1Id: cardId,
-        card2Id: info.id,
-      });
+    const locations = findCardsInColumns({
+      columns: columns,
+      ids: [cardId, info.id],
+    });
+    const draggedCardLoc = locations[0];
+    const thisCardLoc = locations[1];
 
     // update dropped card list based on where it was dropped
     let newColumns = columnsAfterMove({
@@ -69,38 +89,139 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     setIsDragOver(false);
   }
 
+  function saveCardEdits() {
+    console.log(cardEdits);
+
+    const cardLoc = findCardsInColumns({
+      columns: columns,
+      ids: [info.id],
+    })[0];
+
+    let tempColumns = [...columns];
+    tempColumns[cardLoc!.col].cards[cardLoc!.row] = cardEdits;
+    setColumns([...tempColumns]);
+  }
+
   return (
-    <div
-      css={css`
-        padding: 12px;
+    <Modal
+      isOpen={isEditOpen}
+      onClose={() => {
+        setIsEditOpen(false);
+      }}
+      innerComponent={
+        <div
+          css={css`
+            padding: 20px;
 
-        width: 100%;
+            border-radius: var(--border-radius);
+            background-color: var(--background-color);
+            box-shadow: 0px 0px 8px var(--shadow-color);
+          `}
+        >
+          {/* inputs */}
+          <div
+            css={css`
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
 
-        opacity: ${isDragging ? 0.25 : 1};
+              margin: 10px;
+            `}
+          >
+            <input
+              type="text"
+              placeholder={info.title}
+              onChange={(event) => {
+                cardEdits.title = event.target.value;
+              }}
+            />
+            <textarea
+              placeholder={
+                info.description ? info.description : "description..."
+              }
+              onChange={(event) => {
+                cardEdits.description = event.target.value;
+              }}
+            />
+            <input
+              type="date"
+              placeholder="est. end date"
+              onChange={(event) => {
+                cardEdits.date = event.target.value;
+              }}
+            />
+            <input
+              type="color"
+              placeholder="color"
+              onChange={(event) => {
+                cardEdits.colors = [event.target.value];
+              }}
+            />
+          </div>
 
-        transition: opacity 0.2s ease;
-      `}
-      ref={cardRef}
-      draggable
-      onDragStart={handleStartDrag}
-      onDragEnd={handleEndDrag}
-      onDragEnter={handleCardDragOverEnter}
-      onDragLeave={handleCardDragOverLeave}
-      onDrop={handleDropDrag}
-    >
-      <div
-        css={css`
-          pointer-events: none;
-          padding: 10px;
-          border-radius: var(--border-radius);
-          background-color: green;
-          margin-top: ${isDragOver ? draggingCard?.current?.clientHeight : 0}px;
-          transition: margin 0.2s ease;
-        `}
-      >
-        {info.text}
-      </div>
-    </div>
+          {/* buttons */}
+          <div
+            css={css`
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+              align-items: center;
+
+              margin: 10px;
+            `}
+          >
+            <button onClick={() => setIsEditOpen(false)}>cancel</button>
+            <button
+              onClick={() => {
+                setIsEditOpen(false);
+                saveCardEdits();
+              }}
+            >
+              save
+            </button>
+          </div>
+        </div>
+      }
+      outerComponent={
+        <div
+          css={css`
+            cursor: pointer;
+
+            padding-top: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+
+            width: 100%;
+            opacity: ${isDragging ? 0.2 : 1};
+            transition: transform 1s ease, height 1s ease, opacity 0.2s ease;
+          `}
+          ref={cardRef}
+          draggable={true}
+          onDragStart={handleStartDrag}
+          onDragEnd={handleEndDrag}
+          onDragEnter={handleCardDragOverEnter}
+          onDragLeave={handleCardDragOverLeave}
+          onDrop={handleDropDrag}
+          onClick={() => setIsEditOpen(true)}
+        >
+          <div
+            css={css`
+              pointer-events: none;
+              margin-top: ${isDragOver
+                ? draggingCard?.current?.clientHeight
+                : 0}px;
+              padding: 10px;
+              border-radius: var(--border-radius);
+              background-color: var(--highlight-soft);
+              transition: margin var(--transition-time) ease;
+            `}
+          >
+            {info.title}
+          </div>
+        </div>
+      }
+    />
   );
 };
 
