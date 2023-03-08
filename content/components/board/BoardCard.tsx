@@ -1,18 +1,20 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { DragEvent, useContext, useRef, useState } from "react";
+import { DragEvent, useContext, useEffect, useRef, useState } from "react";
 import { BoardContext } from "../../../pages/board";
 import {
   findCardsInColumns,
   columnsAfterMove,
 } from "../../utilities/boardHelpers";
 import Modal from "../modal";
+import Swal from "sweetalert2";
+import { debounce } from "../../utilities/debounce";
 
 export type CardInfo = {
   id: string;
   title: string;
   description?: string;
-  colors?: string[];
+  colors?: string;
   date?: string;
 };
 
@@ -25,6 +27,19 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const cardStateChangeDebouncer = debounce(() => {
+    const cardLoc = findCardsInColumns({ columns: columns, ids: [info.id] })[0];
+    let tempColumns = [...columns];
+    tempColumns[cardLoc!.col].cards[cardLoc!.row] = cardEdits;
+    setColumns([...tempColumns]);
+  }, 300);
+
+  useEffect(() => {
+    if (info.title === "") {
+      setIsEditOpen(true);
+    }
+  }, [info, isEditOpen]);
 
   let cardEdits: CardInfo = {
     id: info.id,
@@ -46,21 +61,21 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   }
 
   function handleStartDrag(event: DragEvent<HTMLDivElement>) {
-    console.log("drag start");
+    // console.log("drag start");
     event.dataTransfer.setData("id", info.id);
     setDraggingCard(cardRef);
     setIsDragging(true);
   }
 
   function handleEndDrag(event: DragEvent<HTMLDivElement>) {
-    console.log("drag end");
+    // console.log("drag end");
     setDraggingCard(null);
     setIsDragging(false);
   }
 
   function handleDropDrag(event: DragEvent<HTMLDivElement>) {
     setDraggingCard(null);
-    console.log("card drop");
+    // console.log("card drop");
 
     // ignore parent onDrop
     event.stopPropagation();
@@ -89,25 +104,42 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     setIsDragOver(false);
   }
 
-  function saveCardEdits() {
-    console.log(cardEdits);
-
+  function deleteCard() {
     const cardLoc = findCardsInColumns({
       columns: columns,
       ids: [info.id],
     })[0];
 
     let tempColumns = [...columns];
-    tempColumns[cardLoc!.col].cards[cardLoc!.row] = cardEdits;
+    tempColumns[cardLoc!.col].cards.splice(cardLoc!.row, 1);
     setColumns([...tempColumns]);
+  }
+
+  function closeModal() {
+    console.log(cardEdits.title);
+
+    // edited title is not allowed
+    if (cardEdits.title === "") {
+      Swal.fire({
+        title: "No Title!",
+        text: "your card needs a title...",
+        icon: "warning",
+        customClass: {
+          popup: "swal2-dark",
+        },
+      });
+    }
+
+    // all good
+    else {
+      setIsEditOpen(false);
+    }
   }
 
   return (
     <Modal
       isOpen={isEditOpen}
-      onClose={() => {
-        setIsEditOpen(false);
-      }}
+      onClose={closeModal}
       innerComponent={
         <div
           css={css`
@@ -134,6 +166,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               placeholder={info.title}
               onChange={(event) => {
                 cardEdits.title = event.target.value;
+                cardStateChangeDebouncer();
               }}
             />
             <textarea
@@ -142,6 +175,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               }
               onChange={(event) => {
                 cardEdits.description = event.target.value;
+                cardStateChangeDebouncer();
               }}
             />
             <input
@@ -149,13 +183,15 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               placeholder="est. end date"
               onChange={(event) => {
                 cardEdits.date = event.target.value;
+                cardStateChangeDebouncer();
               }}
             />
             <input
               type="color"
               placeholder="color"
               onChange={(event) => {
-                cardEdits.colors = [event.target.value];
+                cardEdits.colors = event.target.value;
+                cardStateChangeDebouncer();
               }}
             />
           </div>
@@ -171,20 +207,17 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               margin: 10px;
             `}
           >
-            <button onClick={() => setIsEditOpen(false)}>cancel</button>
-            <button
-              onClick={() => {
-                setIsEditOpen(false);
-                saveCardEdits();
-              }}
-            >
-              save
-            </button>
+            {/* close */}
+            <button onClick={closeModal}>close</button>
+
+            {/* delete */}
+            <button onClick={deleteCard}>delete</button>
           </div>
         </div>
       }
       outerComponent={
         <div
+          id={info.id}
           css={css`
             cursor: pointer;
 

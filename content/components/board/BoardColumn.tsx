@@ -8,6 +8,7 @@ import {
   findCardsInColumns,
   columnsAfterMove,
 } from "../../utilities/boardHelpers";
+import { debounce } from "../../utilities/debounce";
 
 export type Column = {
   title: string;
@@ -19,15 +20,23 @@ const BoardColumn = ({ index }: { index: number }) => {
 
   const [isDragOver, setIsDragOver] = useState(false);
 
+  let titleEditInput = "";
+  const columnTitleStateChangeDebouncer = debounce(() => {
+    if (titleEditInput === "") return;
+
+    let tempColumns = [...columns];
+    tempColumns[index].title = titleEditInput;
+    setColumns([...tempColumns]);
+  }, 1000);
+
   function createNewCard() {
     let tempColumns = [...columns];
 
+    const newId = uuidv4();
     const newCard: CardInfo = {
-      id: uuidv4(),
+      id: newId,
       title: "",
     };
-
-    console.log(newCard);
 
     tempColumns[index].cards.push(newCard);
 
@@ -54,7 +63,7 @@ const BoardColumn = ({ index }: { index: number }) => {
 
   function handleDropCard(event: DragEvent<HTMLDivElement>) {
     setIsDragOver(false);
-    console.log("column drop");
+    // console.log("column drop");
 
     // obtain dropped card info
     const cardId = event.dataTransfer.getData("id");
@@ -85,7 +94,7 @@ const BoardColumn = ({ index }: { index: number }) => {
     <div
       css={css`
         margin: 10px;
-        width: 200px;
+        width: 250px;
       `}
     >
       {/* header */}
@@ -93,21 +102,44 @@ const BoardColumn = ({ index }: { index: number }) => {
         css={css`
           position: relative;
           display: flex;
+          flex-direction: column;
         `}
       >
         {/* title */}
-        <h3
+        <input
           css={css`
+            padding: 4px;
             margin-inline: auto;
             width: 80%;
-            height: 52px;
-            text-align: center;
-            align-self: flex-end;
+            font-size: 20px;
+            text-overflow: ellipsis;
+
+            color: var(--foreground-color);
+            background: none;
+            border-top: 2px solid transparent;
             border-bottom: 2px solid;
+            border-left: 2px solid transparent;
+            border-right: 2px solid transparent;
+
+            :focus {
+              outline: none;
+
+              ::placeholder {
+                opacity: 0.5;
+              }
+            }
+
+            ::placeholder {
+              color: var(--foreground-color);
+            }
           `}
-        >
-          {columns[index].title}
-        </h3>
+          type="text"
+          placeholder={columns[index].title}
+          onChange={(event) => {
+            titleEditInput = event.target.value;
+            columnTitleStateChangeDebouncer();
+          }}
+        />
 
         {/* settings */}
         <div
