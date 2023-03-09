@@ -46,11 +46,6 @@ const Modal = ({
         css={css`
           /* overflow-y: auto; */
           z-index: 100;
-          width: 100vw;
-          height: 100vh;
-          background-color: #00000075;
-          backdrop-filter: blur(2px);
-
           position: fixed;
           top: 0px;
           left: 0px;
@@ -58,6 +53,11 @@ const Modal = ({
           display: flex;
           justify-content: center;
           align-items: center;
+
+          width: 100vw;
+          height: 100vh;
+          background-color: #00000080;
+          backdrop-filter: blur(3px);
 
           opacity: ${isOpen ? 1 : 0};
           visibility: ${isOpen ? "visible" : "hidden"};
@@ -68,6 +68,8 @@ const Modal = ({
         {/* inner items */}
         <div
           css={css`
+            overflow: auto;
+            overscroll-behavior: none;
             position: relative;
             width: 70vw;
             max-width: 800px;
@@ -75,9 +77,9 @@ const Modal = ({
             margin-inline: auto;
             padding: 30px;
 
-            border-radius: var(--borderRadius);
-            background-color: var(--primaryColor);
-            box-shadow: 0px 0px 8px var(--shadowColor);
+            border-radius: var(--border-radius);
+            background-color: var(--off-background-color);
+            box-shadow: 0px 0px 8px var(--shadow-color);
 
             form {
               display: flex;
