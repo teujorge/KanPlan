@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import { v4 as uuidv4 } from "uuid";
 import Head from "next/head";
 import { css } from "@emotion/react";
 import BoardColumn, { Column } from "../content/components/board/BoardColumn";
@@ -10,11 +11,13 @@ import {
   useState,
 } from "react";
 
+type DraggingCardType = RefObject<HTMLDivElement> | null;
+
 type BoardContextType = {
   columns: Column[];
   setColumns: Dispatch<SetStateAction<Column[]>>;
-  draggingCard: RefObject<HTMLDivElement> | null;
-  setDraggingCard: Dispatch<SetStateAction<RefObject<HTMLDivElement> | null>>;
+  draggingCard: DraggingCardType;
+  setDraggingCard: Dispatch<SetStateAction<DraggingCardType>>;
 };
 
 export const BoardContext = createContext<BoardContextType>({
@@ -29,18 +32,20 @@ export default function Board() {
     {
       title: "col1",
       cards: [
-        { id: "1", text: "hi" },
-        { id: "2", text: "byebyebyebyebye byebyebyebyebye byebyebyebyebye" },
-        { id: "3", text: "asdfasdf" },
+        { id: uuidv4(), title: "hi" },
+        {
+          id: uuidv4(),
+          title: "byebyebyebyebye byebyebyebyebye byebyebyebyebye",
+        },
+        { id: uuidv4(), title: "asdfasdf" },
       ],
     },
     {
-      title: "col2",
-      cards: [{ id: "4", text: "1111111" }],
+      title: "col2 col2 col2 col2 col2 col2",
+      cards: [{ id: "4", title: "1111111" }],
     },
   ]);
-  const [draggingCard, setDraggingCard] =
-    useState<RefObject<HTMLDivElement> | null>(null);
+  const [draggingCard, setDraggingCard] = useState<DraggingCardType>(null);
 
   function createNewColumn() {
     const newColumn: Column = { title: "untitled", cards: [] };
@@ -94,10 +99,12 @@ export default function Board() {
               css={css`
                 cursor: pointer;
 
+                margin-left: 20px;
+
                 text-decoration: underline;
                 text-decoration-color: transparent;
 
-                transition: text-decoration-color 0.1s ease;
+                transition: text-decoration-color var(--transition-time) ease;
 
                 :hover {
                   text-decoration-color: var(--foreground-color);
@@ -105,7 +112,7 @@ export default function Board() {
               `}
               onClick={createNewColumn}
             >
-              + new column
+              + add a new column
             </div>
           </div>
         </main>
