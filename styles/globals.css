@@ -1,7 +1,8 @@
 :root {
   --foreground-color: #0f0f0f;
   --background-color: #f0f0f0;
-  --highlight-soft: #00000015;
+  --off-background-color: #f0f0f0bb;
+  --highlight-soft: #00000020;
   --shadow-color: #00000020;
 
   --border-radius: 12px;
@@ -38,6 +39,7 @@ a {
   :root {
     --foreground-color: #f0f0f0;
     --background-color: #0f0f0f;
+    --off-background-color: #0f0f0fbb;
     --highlight-soft: #ffffff15;
     --shadow-color: #00000080;
   }
