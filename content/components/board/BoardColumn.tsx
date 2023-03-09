@@ -178,9 +178,8 @@ const BoardColumn = ({ index }: { index: number }) => {
           position: relative;
           display: flex;
           flex-direction: column;
-         justify-content: : center;
+          justify-content: center;
           align-items: center;
-
 
           padding-bottom: ${paddingBottom}px;
           width: 100%;
@@ -189,9 +188,9 @@ const BoardColumn = ({ index }: { index: number }) => {
           border-radius: var(--border-radius);
           background-color: var(--highlight-soft);
 
-          transition: ${
-            isDragOver ? "padding-bottom var(--transition-time) ease" : "none"
-          };
+          transition: ${isDragOver
+            ? "padding-bottom var(--transition-time) ease"
+            : "none"};
         `}
         onDragEnter={handleCardDragOverEnter}
         onDragLeave={handleCardDragOverLeave}
