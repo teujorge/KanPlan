@@ -7,8 +7,8 @@ import {
   columnsAfterMove,
 } from "../../utilities/boardHelpers";
 import Modal from "../modal";
-import Swal from "sweetalert2";
 import { debounce } from "../../utilities/debounce";
+import BoardCardModalInner from "./BoardCardModalInner";
 
 export type CardInfo = {
   id: string;
@@ -30,6 +30,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
 
   const cardStateChangeDebouncer = debounce(() => {
     const cardLoc = findCardsInColumns({ columns: columns, ids: [info.id] })[0];
+    if (cardEdits.title === "") cardEdits.title = info.title;
     let tempColumns = [...columns];
     tempColumns[cardLoc!.col].cards[cardLoc!.row] = cardEdits;
     setColumns([...tempColumns]);
@@ -116,24 +117,29 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   }
 
   function closeModal() {
-    console.log(cardEdits.title);
+    setIsEditOpen(false);
+  }
 
-    // edited title is not allowed
-    if (cardEdits.title === "") {
-      Swal.fire({
-        title: "No Title!",
-        text: "your card needs a title...",
-        icon: "warning",
-        customClass: {
-          popup: "swal2-dark",
-        },
-      });
+  function getDateBGColor(): string {
+    let dateBGColor = "transparent";
+    if (info.date) {
+      const nowMs = Date.now();
+      const dateMs = new Date(info.date).getTime();
+
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      const dateDiffMs = dateMs - nowMs;
+
+      // date is in the past
+      if (dateDiffMs + 2 * oneDayMs < 0) {
+        dateBGColor = "#d1000050";
+      } else if (dateDiffMs - 2 * oneDayMs < 0) {
+        dateBGColor = "#d8730050";
+      } else {
+        dateBGColor = "#00d10050";
+      }
     }
 
-    // all good
-    else {
-      setIsEditOpen(false);
-    }
+    return dateBGColor;
   }
 
   return (
@@ -141,79 +147,13 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
       isOpen={isEditOpen}
       onClose={closeModal}
       innerComponent={
-        <div
-          css={css`
-            padding: 20px;
-
-            border-radius: var(--border-radius);
-            background-color: var(--background-color);
-            box-shadow: 0px 0px 8px var(--shadow-color);
-          `}
-        >
-          {/* inputs */}
-          <div
-            css={css`
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-
-              margin: 10px;
-            `}
-          >
-            <input
-              type="text"
-              placeholder={info.title}
-              onChange={(event) => {
-                cardEdits.title = event.target.value;
-                cardStateChangeDebouncer();
-              }}
-            />
-            <textarea
-              placeholder={
-                info.description ? info.description : "description..."
-              }
-              onChange={(event) => {
-                cardEdits.description = event.target.value;
-                cardStateChangeDebouncer();
-              }}
-            />
-            <input
-              type="date"
-              placeholder="est. end date"
-              onChange={(event) => {
-                cardEdits.date = event.target.value;
-                cardStateChangeDebouncer();
-              }}
-            />
-            <input
-              type="color"
-              placeholder="color"
-              onChange={(event) => {
-                cardEdits.colors = event.target.value;
-                cardStateChangeDebouncer();
-              }}
-            />
-          </div>
-
-          {/* buttons */}
-          <div
-            css={css`
-              display: flex;
-              flex-direction: row;
-              justify-content: center;
-              align-items: center;
-
-              margin: 10px;
-            `}
-          >
-            {/* close */}
-            <button onClick={closeModal}>close</button>
-
-            {/* delete */}
-            <button onClick={deleteCard}>delete</button>
-          </div>
-        </div>
+        <BoardCardModalInner
+          info={info}
+          cardEdits={cardEdits}
+          deleteCard={deleteCard}
+          closeModal={closeModal}
+          cardStateChangeDebouncer={cardStateChangeDebouncer}
+        />
       }
       outerComponent={
         <div
@@ -240,6 +180,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
         >
           <div
             css={css`
+              position: relative;
               pointer-events: none;
               margin-top: ${isDragOver
                 ? draggingCard?.current?.clientHeight
@@ -250,7 +191,68 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               transition: margin var(--transition-time) ease;
             `}
           >
-            {info.title}
+            {/* title */}
+            <h3
+              css={css`
+                font-weight: 500;
+                font-size: 16px;
+                margin: 2px;
+                padding: 2px;
+              `}
+            >
+              {info.title}
+            </h3>
+
+            {/* description */}
+            {info.description && (
+              <p
+                css={css`
+                   {
+                    font-size: 14px;
+                    margin: 1px;
+                    padding: 1px;
+                  }
+                `}
+              >
+                {info.description}
+              </p>
+            )}
+
+            {/* date */}
+            {info.date && (
+              <p
+                css={css`
+                  font-size: 12px;
+                  margin-top: 10px;
+                  margin-bottom: 0px;
+                  padding-top: 2px;
+                  padding-bottom: 2px;
+                  padding-left: 6px;
+                  padding-right: 6px;
+                  width: fit-content;
+
+                  border-radius: var(--border-radius);
+                  background-color: ${getDateBGColor()};
+                `}
+              >
+                {info.date}
+              </p>
+            )}
+
+            {/* colors */}
+            <div
+              css={css`
+                position: absolute;
+                top: 0px;
+                left: 0px;
+
+                width: 30px;
+                height: 6px;
+
+                border-radius: var(--border-radius);
+                background-color: ${info.colors ? info.colors : "transparent"};
+              `}
+            />
           </div>
         </div>
       }
