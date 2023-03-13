@@ -19,6 +19,7 @@ const BoardColumn = ({ index }: { index: number }) => {
   const { columns, setColumns, draggingCard } = useContext(BoardContext);
 
   const [isDragOver, setIsDragOver] = useState(false);
+  const [columnInputDisabled, setColumnInputDisabled] = useState(true);
 
   let titleEditInput = "";
   const columnTitleStateChangeDebouncer = debounce(() => {
@@ -124,10 +125,6 @@ const BoardColumn = ({ index }: { index: number }) => {
 
             :focus {
               outline: none;
-
-              ::placeholder {
-                opacity: 0.5;
-              }
             }
 
             ::placeholder {
@@ -135,7 +132,14 @@ const BoardColumn = ({ index }: { index: number }) => {
             }
           `}
           type="text"
-          placeholder={columns[index].title}
+          readOnly={columnInputDisabled}
+          placeholder={columnInputDisabled ? columns[index].title : ""}
+          onDoubleClick={() => {
+            setColumnInputDisabled(false);
+          }}
+          onBlur={() => {
+            setColumnInputDisabled(true);
+          }}
           onChange={(event) => {
             titleEditInput = event.target.value;
             columnTitleStateChangeDebouncer();
