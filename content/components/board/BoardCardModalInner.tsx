@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { CardInfo } from "./BoardCard";
-import { debounce } from "../../utilities/debounce";
 
 const BoardCardModalInner = ({
   info,
@@ -16,14 +15,6 @@ const BoardCardModalInner = ({
   closeModal: () => void;
   cardStateChangeDebouncer: Function;
 }) => {
-  let colorSelector: string = "";
-
-  const colorChangeDebouncer = debounce(() => {
-    if (cardEdits.colors) cardEdits.colors.push(colorSelector);
-    else cardEdits.colors = [colorSelector];
-    cardStateChangeDebouncer();
-  }, 1000);
-
   return (
     <div>
       {/* inputs */}
@@ -60,14 +51,17 @@ const BoardCardModalInner = ({
             cardStateChangeDebouncer();
           }}
         />
-        <input
-          type="color"
-          placeholder={info.colors && info.colors[0]}
-          onChange={(event) => {
-            colorSelector = event.target.value;
-            colorChangeDebouncer();
-          }}
-        />
+
+        {info.colors.map((color, index) => (
+          <input
+            type="color"
+            placeholder={color}
+            onChange={(event) => {
+              cardEdits.colors[index] = event.target.value;
+              cardStateChangeDebouncer();
+            }}
+          />
+        ))}
       </div>
 
       {/* buttons */}

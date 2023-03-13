@@ -15,7 +15,7 @@ export type CardInfo = {
   id: string;
   title: string;
   description?: string;
-  colors?: string[];
+  colors: string[];
   date?: string;
 };
 
@@ -30,11 +30,6 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const cardStateChangeDebouncer = debounce(() => {
-    if (cardEdits.colors && cardEdits.colors.length > 4) {
-      const colorRemoved = cardEdits.colors.splice(4, 1)[0];
-      cardEdits.colors[0] = colorRemoved;
-    }
-
     const cardLoc = findCardsInColumns({ columns: columns, ids: [info.id] })[0];
     if (cardEdits.title === "") cardEdits.title = info.title;
     let tempColumns = [...columns];
@@ -258,23 +253,26 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
             )}
 
             {/* colors */}
-            {info.colors &&
-              info.colors.map((color, index) => (
-                <div
-                  key={`card-${info.id}-color-${index}`}
-                  css={css`
-                    position: absolute;
-                    top: 0px;
-                    left: ${index * 35}px;
+            {info.colors.map((color, index) => {
+              if (color !== "") {
+                return (
+                  <div
+                    key={`card-${info.id}-color-${index}`}
+                    css={css`
+                      position: absolute;
+                      top: 0px;
+                      left: ${index * 35}px;
 
-                    width: 30px;
-                    height: 6px;
+                      width: 30px;
+                      height: 6px;
 
-                    border-radius: var(--border-radius);
-                    background-color: ${color};
-                  `}
-                />
-              ))}
+                      border-radius: var(--border-radius);
+                      background-color: ${color};
+                    `}
+                  />
+                );
+              }
+            })}
           </div>
         </div>
       }

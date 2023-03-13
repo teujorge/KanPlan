@@ -36,6 +36,7 @@ const BoardColumn = ({ index }: { index: number }) => {
     const newCard: CardInfo = {
       id: newId,
       title: "",
+      colors: ["", "", "", ""],
     };
 
     tempColumns[index].cards.push(newCard);
