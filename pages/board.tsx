@@ -50,12 +50,20 @@ export default function Board() {
           id: uuidv4(),
           title: "asdfasdf",
           colors: ["", "", "", ""],
+          description: "my cool card!",
         },
       ],
     },
     {
       title: "col2 col2 col2 col2 col2 col2",
-      cards: [{ id: "4", title: "1111111", colors: ["", "", "", ""] }],
+      cards: [
+        {
+          id: "4",
+          title: "1111111",
+          colors: ["", "", "", ""],
+          description: "my cool card!",
+        },
+      ],
     },
   ]);
   const [draggingCard, setDraggingCard] = useState<DraggingCardType>(null);
