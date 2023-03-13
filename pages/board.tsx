@@ -10,8 +10,12 @@ import {
   createContext,
   useState,
 } from "react";
+import { CardInfo } from "../content/components/board/BoardCard";
 
-type DraggingCardType = RefObject<HTMLDivElement> | null;
+type DraggingCardType = {
+  info: CardInfo;
+  ref: RefObject<HTMLDivElement>;
+} | null;
 
 type BoardContextType = {
   columns: Column[];

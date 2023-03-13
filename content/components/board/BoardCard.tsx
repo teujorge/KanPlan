@@ -6,9 +6,10 @@ import {
   findCardsInColumns,
   columnsAfterMove,
 } from "../../utilities/boardHelpers";
-import Modal from "../modal";
+import Modal from "../Modal";
 import { debounce } from "../../utilities/debounce";
 import BoardCardModalInner from "./BoardCardModalInner";
+import Swal from "sweetalert2";
 
 export type CardInfo = {
   id: string;
@@ -34,7 +35,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
     let tempColumns = [...columns];
     tempColumns[cardLoc!.col].cards[cardLoc!.row] = cardEdits;
     setColumns([...tempColumns]);
-  }, 300);
+  }, 1000);
 
   useEffect(() => {
     if (info.title === "") {
@@ -62,14 +63,19 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   }
 
   function handleStartDrag(event: DragEvent<HTMLDivElement>) {
-    // console.log("drag start");
+    console.log("drag start");
     event.dataTransfer.setData("id", info.id);
-    setDraggingCard(cardRef);
+
+    setDraggingCard({
+      info: info,
+      ref: cardRef,
+    });
+
     setIsDragging(true);
   }
 
   function handleEndDrag(event: DragEvent<HTMLDivElement>) {
-    // console.log("drag end");
+    console.log("drag end");
     setDraggingCard(null);
     setIsDragging(false);
   }
@@ -92,14 +98,12 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
       columns: columns,
       ids: [cardId, info.id],
     });
-    const draggedCardLoc = locations[0];
-    const thisCardLoc = locations[1];
 
     // update dropped card list based on where it was dropped
     let newColumns = columnsAfterMove({
       columns: columns,
-      initialLoc: draggedCardLoc!,
-      finalLoc: thisCardLoc!,
+      initialLoc: locations[0]!,
+      finalLoc: locations[1]!,
     });
     setColumns([...newColumns]);
     setIsDragOver(false);
@@ -117,7 +121,15 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
   }
 
   function closeModal() {
-    setIsEditOpen(false);
+    if (info.title === "") {
+      Swal.fire({
+        title: "no title?",
+        text: "your card requires a title...",
+        icon: "warning",
+      });
+    } else {
+      setIsEditOpen(false);
+    }
   }
 
   function getDateBGColor(): string {
@@ -166,8 +178,9 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
             padding-right: 10px;
 
             width: 100%;
-            opacity: ${isDragging ? 0.2 : 1};
-            transition: transform 1s ease, height 1s ease, opacity 0.2s ease;
+
+            opacity: ${isDragging ? 0.1 : 1};
+            transition: transform 0.5s ease, height 0.5s ease, opacity 0.2s ease;
           `}
           ref={cardRef}
           draggable={true}
@@ -183,7 +196,7 @@ const BoardCard = ({ info }: { info: CardInfo }) => {
               position: relative;
               pointer-events: none;
               margin-top: ${isDragOver
-                ? draggingCard?.current?.clientHeight
+                ? draggingCard?.ref.current?.clientHeight
                 : 0}px;
               padding: 10px;
               border-radius: var(--border-radius);
