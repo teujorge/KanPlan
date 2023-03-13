@@ -19,6 +19,7 @@ const BoardColumn = ({ index }: { index: number }) => {
   const { columns, setColumns, draggingCard } = useContext(BoardContext);
 
   const [isDragOver, setIsDragOver] = useState(false);
+  const [columnInputDisabled, setColumnInputDisabled] = useState(true);
 
   let titleEditInput = "";
   const columnTitleStateChangeDebouncer = debounce(() => {
@@ -36,6 +37,7 @@ const BoardColumn = ({ index }: { index: number }) => {
     const newCard: CardInfo = {
       id: newId,
       title: "",
+      colors: ["", "", "", ""],
     };
 
     tempColumns[index].cards.push(newCard);
@@ -68,8 +70,8 @@ const BoardColumn = ({ index }: { index: number }) => {
     // obtain dropped card info
     const cardId = event.dataTransfer.getData("id");
 
-    // find dropped card in cards list
-    const draggedCardLoc = findCardsInColumns({
+    // find cards in arrays
+    const cardLocation = findCardsInColumns({
       columns: columns,
       ids: [cardId],
     })[0];
@@ -77,7 +79,7 @@ const BoardColumn = ({ index }: { index: number }) => {
     // update dropped card list based on where it was dropped
     let newColumns = columnsAfterMove({
       columns: columns,
-      initialLoc: draggedCardLoc!,
+      initialLoc: cardLocation!,
       finalLoc: { col: index, row: columns[index].cards.length },
     });
     setColumns([...newColumns]);
@@ -86,8 +88,8 @@ const BoardColumn = ({ index }: { index: number }) => {
   let cards: CardInfo[] = columns[index].cards;
 
   const paddingBottom =
-    draggingCard && draggingCard.current && isDragOver
-      ? draggingCard.current.clientHeight + 40
+    draggingCard && draggingCard.ref.current && isDragOver
+      ? draggingCard.ref.current.clientHeight + 40
       : 40;
 
   return (
@@ -123,10 +125,6 @@ const BoardColumn = ({ index }: { index: number }) => {
 
             :focus {
               outline: none;
-
-              ::placeholder {
-                opacity: 0.5;
-              }
             }
 
             ::placeholder {
@@ -134,7 +132,14 @@ const BoardColumn = ({ index }: { index: number }) => {
             }
           `}
           type="text"
-          placeholder={columns[index].title}
+          readOnly={columnInputDisabled}
+          placeholder={columnInputDisabled ? columns[index].title : ""}
+          onDoubleClick={() => {
+            setColumnInputDisabled(false);
+          }}
+          onBlur={() => {
+            setColumnInputDisabled(true);
+          }}
           onChange={(event) => {
             titleEditInput = event.target.value;
             columnTitleStateChangeDebouncer();

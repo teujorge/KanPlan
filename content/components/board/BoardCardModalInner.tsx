@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { CardInfo } from "./BoardCard";
+import { useState } from "react";
 
 const BoardCardModalInner = ({
   info,
@@ -15,6 +16,11 @@ const BoardCardModalInner = ({
   closeModal: () => void;
   cardStateChangeDebouncer: Function;
 }) => {
+  const [titleText, setTitleText] = useState(info.title);
+  const [descText, setDescText] = useState(
+    info.description ? info.description : ""
+  );
+
   return (
     <div>
       {/* inputs */}
@@ -31,15 +37,19 @@ const BoardCardModalInner = ({
         <input
           type="text"
           placeholder={info.title}
+          value={titleText}
           onChange={(event) => {
             cardEdits.title = event.target.value;
+            setTitleText(cardEdits.title);
             cardStateChangeDebouncer();
           }}
         />
         <textarea
           placeholder={info.description ? info.description : "description..."}
+          value={descText}
           onChange={(event) => {
             cardEdits.description = event.target.value;
+            setDescText(cardEdits.description);
             cardStateChangeDebouncer();
           }}
         />
@@ -51,14 +61,17 @@ const BoardCardModalInner = ({
             cardStateChangeDebouncer();
           }}
         />
-        <input
-          type="color"
-          placeholder={info.colors && info.colors}
-          onChange={(event) => {
-            cardEdits.colors = event.target.value;
-            cardStateChangeDebouncer();
-          }}
-        />
+
+        {info.colors.map((color, index) => (
+          <input
+            type="color"
+            placeholder={color}
+            onChange={(event) => {
+              cardEdits.colors[index] = event.target.value;
+              cardStateChangeDebouncer();
+            }}
+          />
+        ))}
       </div>
 
       {/* buttons */}

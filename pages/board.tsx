@@ -10,8 +10,12 @@ import {
   createContext,
   useState,
 } from "react";
+import { CardInfo } from "../content/components/board/BoardCard";
 
-type DraggingCardType = RefObject<HTMLDivElement> | null;
+type DraggingCardType = {
+  info: CardInfo;
+  ref: RefObject<HTMLDivElement>;
+} | null;
 
 type BoardContextType = {
   columns: Column[];
@@ -32,17 +36,34 @@ export default function Board() {
     {
       title: "col1",
       cards: [
-        { id: uuidv4(), title: "hi" },
+        {
+          id: uuidv4(),
+          title: "hi",
+          colors: ["", "", "", ""],
+        },
         {
           id: uuidv4(),
           title: "byebyebyebyebye byebyebyebyebye byebyebyebyebye",
+          colors: ["red", "green", "blue", ""],
         },
-        { id: uuidv4(), title: "asdfasdf" },
+        {
+          id: uuidv4(),
+          title: "asdfasdf",
+          colors: ["", "", "", ""],
+          description: "my cool card!",
+        },
       ],
     },
     {
       title: "col2 col2 col2 col2 col2 col2",
-      cards: [{ id: "4", title: "1111111" }],
+      cards: [
+        {
+          id: "4",
+          title: "1111111",
+          colors: ["", "", "", ""],
+          description: "my cool card!",
+        },
+      ],
     },
   ]);
   const [draggingCard, setDraggingCard] = useState<DraggingCardType>(null);
