@@ -26,6 +26,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+button {
+  border: none;
+}
 
 * {
   box-sizing: border-box;
