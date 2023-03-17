@@ -4,6 +4,9 @@ import { css } from "@emotion/react";
 import { AppContext, Pages } from "../../../pages/_app";
 import { useContext } from "react";
 import HeaderButton from "./HeaderButton";
+import HeaderDropdown from "./HeaderDropdown";
+import ColumnSvg from "../../../public/svgs/ColumnSvg";
+import GearSvg from "../../../public/svgs/GearSvg";
 
 const Header = () => {
   const { page } = useContext(AppContext);
@@ -51,17 +54,13 @@ const Header = () => {
         {/* section top */}
         <div>
           <HeaderButton href={Pages.home} title="Home" icon={<></>} />
-          <HeaderButton
-            href={Pages.workspace}
-            title="Workspaces"
-            icon={<></>}
-          />
-          <HeaderButton href={Pages.board} title="Boards" icon={<></>} />
+          <HeaderDropdown title="Workspaces" icon={ColumnSvg} links={[]} />
+          <HeaderDropdown title="Boards" icon={ColumnSvg} links={[]} />
         </div>
 
         {/* section bot */}
         <div>
-          <HeaderButton href={Pages.settings} title="Settings" icon={<></>} />
+          <HeaderButton href={Pages.settings} title="Settings" icon={GearSvg} />
         </div>
       </div>
     </>
