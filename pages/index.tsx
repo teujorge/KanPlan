@@ -1,7 +1,10 @@
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import WorkspaceCard from "../content/components/workspaceCard";
+import HeaderDropdown from "../content/components/HeaderDropdown";
+import WorkspaceCard, { Size } from "../content/components/WorkspaceCard";
+import Column from "../public/svgs/ColumnSvg";
+import ColumnSvg from "../public/svgs/ColumnSvg";
 
 export default function Home() {
   return (
@@ -21,6 +24,15 @@ export default function Home() {
           description={
             "description description description description description description description"
           }
+          size={Size.m}
+          qtProgress={0}
+          qtOverdue={0}
+          href={""}
+        />
+        <HeaderDropdown
+          icon={ColumnSvg}
+          title={"WorkSpaces"}
+          links={["Workspace 1", "Workspace 2", "Workspace 3"]}
         />
 
         <p className={styles.description}>
