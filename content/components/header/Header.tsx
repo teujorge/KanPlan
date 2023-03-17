@@ -7,6 +7,7 @@ import HeaderButton from "./HeaderButton";
 import HeaderDropdown from "./HeaderDropdown";
 import ColumnSvg from "../../../public/svgs/ColumnSvg";
 import GearSvg from "../../../public/svgs/GearSvg";
+import HouseSvg from "../../../public/svgs/HouseSvg";
 
 const Header = () => {
   const { page } = useContext(AppContext);
@@ -53,7 +54,7 @@ const Header = () => {
       >
         {/* section top */}
         <div>
-          <HeaderButton href={Pages.home} title="Home" icon={<></>} />
+          <HeaderButton href={Pages.home} title="Home" icon={HouseSvg} />
           <HeaderDropdown title="Workspaces" icon={ColumnSvg} links={[]} />
           <HeaderDropdown title="Boards" icon={ColumnSvg} links={[]} />
         </div>
