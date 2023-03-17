@@ -2,7 +2,7 @@
 import { css } from "@emotion/react";
 import Link from "next/link";
 import { useState } from "react";
-import TriangleSvg from "../../public/svgs/TriangleSvg";
+import TriangleSvg from "../../../public/svgs/TriangleSvg";
 
 const HeaderDropdown = ({
   icon,
@@ -20,19 +20,19 @@ const HeaderDropdown = ({
 
   return (
     <div
-      onClick={showHide}
       css={css`
         display: flex;
         flex-direction: column;
-        width: 200px;
+        margin: 20px;
+        width: calc(100% - 40px);
         color: black;
         border-radius: 20px;
         background-color: #c5e3ed;
-        transition: height 0.4s ease;
       `}
     >
       {/*title div*/}
       <div
+        onClick={showHide}
         css={css`
           display: flex;
           flex-direction: row;
@@ -56,7 +56,14 @@ const HeaderDropdown = ({
         >
           {icon}
         </div>
-        <h3>{title}</h3>
+
+        <h3
+          css={css`
+            width: 70%;
+          `}
+        >
+          {title}
+        </h3>
 
         <div
           css={css`
