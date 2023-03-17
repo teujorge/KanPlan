@@ -1,16 +1,19 @@
 /** @jsxImportSource @emotion/react */
-import { v4 as uuidv4 } from "uuid";
-import Head from "next/head";
 import { css } from "@emotion/react";
+
 import BoardColumn, { Column } from "../content/components/board/BoardColumn";
+import Head from "next/head";
+import { AppContext, Pages } from "./_app";
+import { CardInfo } from "../content/components/board/BoardCard";
+import { v4 as uuidv4 } from "uuid";
 import {
   Dispatch,
   RefObject,
   SetStateAction,
   createContext,
+  useContext,
   useState,
 } from "react";
-import { CardInfo } from "../content/components/board/BoardCard";
 
 type DraggingCardType = {
   info: CardInfo;
@@ -32,6 +35,9 @@ export const BoardContext = createContext<BoardContextType>({
 });
 
 export default function Board() {
+  const { setPage } = useContext(AppContext);
+  setPage(Pages.board);
+
   const [columns, setColumns] = useState<Column[]>([
     {
       title: "col1",

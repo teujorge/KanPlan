@@ -5,8 +5,13 @@ import HeaderDropdown from "../content/components/HeaderDropdown";
 import WorkspaceCard, { Size } from "../content/components/WorkspaceCard";
 import Column from "../public/svgs/ColumnSvg";
 import ColumnSvg from "../public/svgs/ColumnSvg";
+import { AppContext, Pages } from "./_app";
+import { useContext } from "react";
 
-export default function Home() {
+export default function Index() {
+  const { setPage } = useContext(AppContext);
+  setPage(Pages.index);
+
   return (
     <div className={styles.container}>
       <Head>
