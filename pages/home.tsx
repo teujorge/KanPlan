@@ -3,7 +3,7 @@ import { useContext } from "react";
 
 export default function Home() {
   const { setPage } = useContext(AppContext);
-  setPage(Pages.index);
+  setPage(Pages.home);
 
-  return <div>WORKSPACE PAGE</div>;
+  return <div>HOME PAGE</div>;
 }

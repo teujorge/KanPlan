@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import HeaderDropdown from "../content/components/HeaderDropdown";
+import HeaderDropdown from "../content/components/header/HeaderDropdown";
 import WorkspaceCard, { Size } from "../content/components/WorkspaceCard";
 import Column from "../public/svgs/ColumnSvg";
 import ColumnSvg from "../public/svgs/ColumnSvg";
